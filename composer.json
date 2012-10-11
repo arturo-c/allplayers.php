@@ -3,10 +3,10 @@
     "description": "AllPlayers PHP Client",
     "autoload": {
         "psr-0": {
-            "AllPlayers": ""
+            "AllPlayers\\Tests\\Client": "tests/",
+            "AllPlayers": "src/"
         }
     },
-    "target-dir": "AllPlayers",
     "require": {
         "php": ">=5.3.2",
         "guzzle/guzzle": ">=2.8.7"

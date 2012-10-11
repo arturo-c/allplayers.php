@@ -2,9 +2,8 @@
 namespace AllPlayers;
 
 use AllPlayers\Component\HttpClient;
-
-use Guzzle\Http\Plugin\CookiePlugin;
 use Guzzle\Http\Plugin\LogPlugin;
+use Guzzle\Http\Plugin\CookiePlugin;
 
 use ErrorException;
 
@@ -16,9 +15,9 @@ class Client extends HttpClient
     /**
      * {@inheritdoc}
      */
-    public function __construct($base_url, LogPlugin $log_plugin = null, $cookie_plugin = null)
+    public function __construct($base_url, LogPlugin $log_plugin = null, CookiePlugin $cookie_plugin = null, $auth = 'cookies', $oauth_config = array(), $curl_config = array())
     {
-        parent::__construct("$base_url/api/v1/rest", $log_plugin, $cookie_plugin);
+        parent::__construct("$base_url/api/v1/rest", $log_plugin, $cookie_plugin, $auth, $oauth_config, $curl_config);
     }
 
     /**

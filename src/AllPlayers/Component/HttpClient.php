@@ -7,6 +7,8 @@ use Guzzle\Http\CookieJar\ArrayCookieJar;
 use Guzzle\Http\Message\RequestInterface;
 use Guzzle\Http\Message\Response;
 use Guzzle\Http\Plugin\CookiePlugin;
+use Guzzle\Http\Plugin\CurlAuthPlugin;
+use Guzzle\Http\Plugin\OauthPlugin;
 use Guzzle\Http\Plugin\LogPlugin;
 
 use InvalidArgumentException;
@@ -96,7 +98,7 @@ class HttpClient
      *
      * @todo Just extend a REST Class in the future.
      */
-    public function __construct($url_prefix, LogPlugin $log_plugin = null, CookiePlugin $cookie_plugin = null)
+    public function __construct($url_prefix, LogPlugin $log_plugin = null, CookiePlugin $cookie_plugin = null, $auth = 'cookies', $oauth_config = array(), $curl_config = array())
     {
         // Validate $url argument.
         if (!filter_var($url_prefix, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
@@ -106,11 +108,20 @@ class HttpClient
         }
         $this->urlPrefix = $url_prefix;
 
-        $this->client = new Client();
+        $this->client = new Client($url_prefix);
 
-        // Use passed in CookiePlugin or use basic array backed version.
-        $this->cookiePlugin = ($cookie_plugin) ? $cookie_plugin : new CookiePlugin(new ArrayCookieJar());
-        $this->client->addSubscriber($this->cookiePlugin);
+        // Deciding which auth method to add.
+        switch ($auth) {
+            case 'basic':
+                $auth_plugin = new CurlAuthPlugin($curl_config['username'], $curl_config['password']);
+                break;
+            case 'oauth':
+                $auth_plugin = new OauthPlugin($oauth_config);
+                break;
+            case 'cookies':
+                $auth_plugin = $this->cookiePlugin = ($cookie_plugin) ? $cookie_plugin : new CookiePlugin(new ArrayCookieJar());
+        }
+        $this->client->addSubscriber($auth_plugin);
 
         if ($log_plugin) {
           // Register passed in LogPlugin.
